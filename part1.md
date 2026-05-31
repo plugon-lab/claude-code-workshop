@@ -10,9 +10,9 @@
 
 ---
 
-## ❶ VS Code 설치
+### ❶ VS Code 설치
 
-### ■ 다운로드 및 설치
+#### ■ 다운로드 및 설치
 
 **Windows:**
 1. [code.visualstudio.com](https://code.visualstudio.com) 접속
@@ -32,11 +32,11 @@
 
 ---
 
-## ❷ Node.js 설치
+### ❷ Node.js 설치
 
 Claude Code는 Node.js 위에서 동작합니다. 반드시 설치가 필요합니다.
 
-### ■ 다운로드 및 설치
+#### ■ 다운로드 및 설치
 
 **Windows:**
 1. [nodejs.org](https://nodejs.org) 접속
@@ -74,7 +74,7 @@ v20.11.0
 
 ---
 
-## ❸ Git 설치
+### ❸ Git 설치
 
 Part 4 배포 실습에서 `git commit`, `git push`를 사용합니다. 반드시 설치가 필요합니다.
 
@@ -109,7 +109,7 @@ git version 2.x.x
 
 ---
 
-## ❹ Claude Code 설치
+### ❹ Claude Code 설치
 
 Node.js 설치가 완료되었으면 Claude Code를 설치합니다.
 
@@ -138,11 +138,11 @@ claude --version
 
 ---
 
-## ❺ Claude 구독 계정으로 로그인
+### ❺ Claude 구독 계정으로 로그인
 
 Claude Code는 **API 키 없이 claude.ai 구독 계정(Pro/Max 플랜)으로 바로 사용**할 수 있습니다.
 
-### ■ 로그인 실행
+#### ■ 로그인 실행
 
 ```bash
 claude
@@ -158,7 +158,7 @@ How would you like to authenticate?
 
 키보드 방향키로 **첫 번째 항목(claude.ai account)** 을 선택하고 Enter를 누르세요.
 
-### ■ 브라우저 인증
+#### ■ 브라우저 인증
 
 1. 터미널에 인증 URL이 표시됩니다
 2. URL을 복사해 브라우저에 붙여넣거나, 자동으로 브라우저가 열립니다
@@ -172,7 +172,7 @@ How would you like to authenticate?
 
 ---
 
-## ❻ VS Code 확장 설치
+### ❻ VS Code 확장 설치
 
 1. VS Code 실행
 2. 좌측 Extensions 아이콘 클릭
@@ -186,33 +186,33 @@ How would you like to authenticate?
 
 ---
 
-## ❼ 첫 대화 실습
+### ❼ 첫 대화 실습
 
 VS Code 사이드패널의 Claude Code를 열거나, 터미널에서 `claude`를 실행해 대화해보세요.
 
-### ■ 실습 프롬프트 1 — 자기소개 요청
+#### ■ 실습 프롬프트 1 — 자기소개 요청
 ```
 안녕! 너는 어떤 걸 잘 할 수 있어?
 ```
 
-### ■ 실습 프롬프트 2 — 파일 생성 요청
+#### ■ 실습 프롬프트 2 — 파일 생성 요청
 ```
 hello.txt 파일을 만들고 "안녕하세요, Claude Code입니다!"라고 적어줘
 ```
 
 만들어진 파일을 VS Code 탐색기(왼쪽 파일 목록)에서 확인해보세요.
 
-### ■ 실습 프롬프트 3 — 코드 생성 요청
+#### ■ 실습 프롬프트 3 — 코드 생성 요청
 ```
 Python으로 1부터 10까지 숫자를 출력하는 코드를 count.py 파일로 만들어줘
 ```
 
-### ■ 실습 프롬프트 4 — 코드 설명 요청
+#### ■ 실습 프롬프트 4 — 코드 설명 요청
 ```
 방금 만든 count.py 코드를 초보자도 이해할 수 있게 설명해줘
 ```
 
-### ■ 실습 프롬프트 5 — 코드 수정 요청
+#### ■ 실습 프롬프트 5 — 코드 수정 요청
 ```
 count.py에서 짝수만 출력하도록 수정해줘
 ```
@@ -222,7 +222,7 @@ count.py에서 짝수만 출력하도록 수정해줘
 
 ---
 
-### ■ Part 1 체크포인트
+#### ■ Part 1 체크포인트
 
 - [ ] VS Code가 정상 실행되는가
 - [ ] `node --version` 명령이 정상 출력되는가
