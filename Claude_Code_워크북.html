@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code 핸즈온 워크북</title>
+<style>
+  :root {
+    --p1: #6C63FF;
+    --p1-light: #EEF0FF;
+    --p1-mid: #D4D0FF;
+    --p2: #00B894;
+    --p2-light: #E6FAF6;
+    --p2-mid: #B3EEE3;
+    --p3: #E17055;
+    --p3-light: #FEF0EB;
+    --p3-mid: #F9C9B8;
+    --p4: #0984E3;
+    --p4-light: #E8F4FD;
+    --p4-mid: #B3D9F5;
+    --bg: #F4F6FA;
+    --card: #FFFFFF;
+    --text: #2D3436;
+    --muted: #636E72;
+    --border: #DFE6E9;
+    --code-bg: #1E1E2E;
+    --prompt-bg: #F0EEFF;
+    --tip-bg: #FFFBEA;
+    --warn-bg: #FFF0EE;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+
+  /* ── 히어로 ── */
+  .hero {
+    background: linear-gradient(135deg, #5A52E8 0%, #3B37CC 100%);
+    color: white; padding: 44px 32px 36px; text-align: center;
+  }
+  .hero-badge { display: inline-block; background: rgba(255,255,255,0.18); border-radius: 20px; padding: 4px 16px; font-size: 12px; margin-bottom: 14px; letter-spacing: 0.06em; }
+  .hero h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 8px; }
+  .hero p { font-size: 0.95rem; opacity: 0.82; }
+
+  /* ── 스티키 상단 바 ── */
+  .sticky-bar {
+    position: sticky; top: 0; z-index: 200;
+    background: white; border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+  }
+
+  /* 파트 네비게이션 */
+  .part-nav {
+    display: flex; gap: 0; border-bottom: 1px solid var(--border);
+  }
+  .part-nav a {
+    flex: 1; text-align: center; padding: 11px 8px;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+    color: var(--muted); border-bottom: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .part-nav a:hover { color: var(--text); background: var(--bg); }
+  .part-nav a.p1 { border-bottom-color: transparent; }
+  .part-nav a.p1:hover, .part-nav a.p1.active { color: var(--p1); border-bottom-color: var(--p1); background: var(--p1-light); }
+  .part-nav a.p2:hover, .part-nav a.p2.active { color: var(--p2); border-bottom-color: var(--p2); background: var(--p2-light); }
+  .part-nav a.p3:hover, .part-nav a.p3.active { color: var(--p3); border-bottom-color: var(--p3); background: var(--p3-light); }
+  .part-nav a.p4:hover, .part-nav a.p4.active { color: var(--p4); border-bottom-color: var(--p4); background: var(--p4-light); }
+
+  /* 진행률 바 */
+  .progress-bar-wrap { padding: 10px 24px; }
+  .progress-info { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .progress-track { background: var(--border); border-radius: 4px; height: 5px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--p1), var(--p2)); border-radius: 4px; transition: width 0.4s ease; width: 0%; }
+
+  /* ── 본문 ── */
+  .container { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* ── 사전 준비 ── */
+  .prep-card { background: white; border: 2px solid var(--p1-mid); border-radius: 16px; padding: 26px 30px; margin-bottom: 16px; }
+  .prep-card h2 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+  /* ── 파트 헤더 ── */
+  .part { margin-bottom: 52px; }
+  .part-header { border-radius: 14px; padding: 18px 26px; margin-bottom: 20px; color: white; display: flex; align-items: center; gap: 14px; }
+  .part-header.p1 { background: linear-gradient(135deg, #6C63FF, #8B85FF); }
+  .part-header.p2 { background: linear-gradient(135deg, #00B894, #00CEC9); }
+  .part-header.p3 { background: linear-gradient(135deg, #E17055, #D63031); }
+  .part-header.p4 { background: linear-gradient(135deg, #0984E3, #4EABF0); }
+  .part-icon { font-size: 1.8rem; }
+  .part-title { font-size: 1.15rem; font-weight: 800; }
+  .part-sub { font-size: 0.82rem; opacity: 0.85; margin-top: 2px; }
+
+  /* ── 스텝 카드 ── */
+  .step { background: white; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; overflow: hidden; }
+
+  .step-head { padding: 13px 20px; display: flex; align-items: center; gap: 12px; }
+  .step-head.h-p1 { background: var(--p1-light); border-bottom: 1px solid var(--p1-mid); }
+  .step-head.h-p2 { background: var(--p2-light); border-bottom: 1px solid var(--p2-mid); }
+  .step-head.h-p3 { background: var(--p3-light); border-bottom: 1px solid var(--p3-mid); }
+  .step-head.h-p4 { background: var(--p4-light); border-bottom: 1px solid var(--p4-mid); }
+
+  .step-num { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: white; flex-shrink: 0; }
+  .n-p1 { background: var(--p1); }
+  .n-p2 { background: var(--p2); }
+  .n-p3 { background: var(--p3); }
+  .n-p4 { background: var(--p4); }
+
+  .step-title { font-weight: 700; font-size: 0.95rem; }
+  .step-title.c-p1 { color: var(--p1); }
+  .step-title.c-p2 { color: #007a63; }
+  .step-title.c-p3 { color: #b85a42; }
+  .step-title.c-p4 { color: #0670c0; }
+
+  .step-body { padding: 18px 22px; }
+  .step-body p { margin-bottom: 10px; font-size: 14.5px; }
+  .step-body p:last-child { margin-bottom: 0; }
+  .step-body ul, .step-body ol { padding-left: 20px; margin-bottom: 10px; font-size: 14.5px; }
+  .step-body li { margin-bottom: 5px; }
+
+  /* ── OS 탭 ── */
+  .os-tabs { margin: 14px 0; }
+  .os-tab-btns { display: flex; gap: 4px; }
+  .os-btn { padding: 5px 16px; border: 1px solid var(--border); background: var(--bg); border-radius: 8px 8px 0 0; cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--muted); border-bottom: none; transition: all 0.12s; }
+  .os-btn.active { background: white; color: var(--text); border-color: var(--border); border-bottom: 2px solid white; margin-bottom: -1px; position: relative; z-index: 1; }
+  .os-pane { display: none; border: 1px solid var(--border); border-radius: 0 8px 8px 8px; padding: 14px; background: white; }
+  .os-pane.active { display: block; }
+
+  /* ── 코드 블록 ── */
+  .code-wrap { position: relative; margin: 10px 0; }
+  .code-label { background: #2A2A3D; color: #9AA5B4; font-size: 11px; padding: 4px 12px; border-radius: 6px 6px 0 0; font-family: monospace; display: flex; justify-content: space-between; align-items: center; }
+  .copy-btn { background: none; border: 1px solid #555; color: #9AA5B4; font-size: 11px; padding: 2px 8px; border-radius: 4px; cursor: pointer; transition: all 0.12s; }
+  .copy-btn:hover { background: #444; color: white; }
+  .copy-btn.copied { color: #00B894; border-color: #00B894; }
+  pre { background: var(--code-bg); color: #CDD6F4; padding: 14px 16px; border-radius: 0 0 6px 6px; overflow-x: auto; font-family: 'JetBrains Mono', 'Consolas', monospace; font-size: 13px; line-height: 1.65; margin: 0; }
+  code { background: #ECEEF5; padding: 2px 5px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 0.87em; color: #5A52CC; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* ── 프롬프트 블록 ── */
+  .prompt-block { background: var(--prompt-bg); border-left: 4px solid var(--p1); border-radius: 0 10px 10px 0; padding: 14px 48px 14px 18px; margin: 14px 0; position: relative; }
+  .prompt-label { font-size: 11px; font-weight: 700; color: var(--p1); letter-spacing: 0.07em; margin-bottom: 7px; }
+  .prompt-label::before { content: "💬 "; }
+  .prompt-text { font-size: 13.5px; line-height: 1.75; white-space: pre-wrap; color: #2D3436; }
+  .prompt-copy { position: absolute; top: 12px; right: 10px; background: var(--p1); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; transition: all 0.12s; }
+  .prompt-copy:hover { background: #5048D4; }
+  .prompt-copy.copied { background: var(--p2); }
+
+  /* ── 알림 박스 ── */
+  .tip { background: var(--tip-bg); border-left: 4px solid #FDCB6E; border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 13.5px; }
+  .tip::before { content: "💡 "; }
+  .warn { background: var(--warn-bg); border-left: 4px solid var(--p3); border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 13.5px; }
+  .warn::before { content: "⚠️ "; }
+  .info { background: var(--p4-light); border-left: 4px solid var(--p4); border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; font-size: 13.5px; }
+  .info::before { content: "ℹ️ "; }
+
+  /* ── 테이블 ── */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+  th { background: #F2F4F8; padding: 9px 13px; text-align: left; font-weight: 700; border: 1px solid var(--border); }
+  td { padding: 9px 13px; border: 1px solid var(--border); }
+  tr:hover td { background: #FAFBFC; }
+
+  /* ── 체크포인트 ── */
+  .checkpoint { background: linear-gradient(135deg, #F2F7FF, #EEF9F4); border: 2px dashed #C5D8EF; border-radius: 12px; padding: 18px 22px; margin-top: 20px; }
+  .checkpoint h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .checkpoint h4::before { content: "✅"; }
+  .check-item { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; cursor: pointer; padding: 7px 10px; border-radius: 8px; transition: background 0.12s; }
+  .check-item:hover { background: rgba(255,255,255,0.65); }
+  .check-item input[type="checkbox"] { width: 16px; height: 16px; margin-top: 3px; flex-shrink: 0; cursor: pointer; accent-color: var(--p1); }
+  .check-item label { font-size: 13.5px; cursor: pointer; line-height: 1.5; }
+  .check-item.done label { text-decoration: line-through; color: var(--muted); }
+
+  /* ── 플로우 ── */
+  .flow { display: flex; flex-direction: column; align-items: center; margin: 16px 0; }
+  .flow-item { background: white; border: 2px solid var(--border); border-radius: 10px; padding: 9px 22px; font-size: 13.5px; font-weight: 600; min-width: 190px; text-align: center; }
+  .flow-arrow { color: var(--muted); font-size: 18px; margin: 3px 0; line-height: 1; }
+
+  /* ── 마무리 섹션 ── */
+  .wrap-section { background: white; border-radius: 14px; border: 1px solid var(--border); padding: 24px 28px; margin-bottom: 20px; }
+  .wrap-section h3 { font-size: 1rem; font-weight: 700; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 8px; }
+
+  /* ── 조작법 그리드 ── */
+  .shortcut-section { margin-bottom: 18px; }
+  .shortcut-section h4 { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+
+  /* ── 커맨드 칩 ── */
+  .cmd-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .cmd-chip { background: var(--code-bg); color: #CDD6F4; border-radius: 8px; padding: 9px 13px; font-family: monospace; font-size: 13px; display: flex; flex-direction: column; gap: 3px; }
+  .cmd-chip span { font-family: sans-serif; font-size: 11px; color: #7A8599; }
+
+  /* ── 시나리오 ── */
+  .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px; margin-top: 10px; }
+  .scenario-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 13px; }
+  .scenario-card strong { display: block; margin-bottom: 3px; }
+
+  /* ── 반응형 ── */
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.4rem; }
+    .container { padding: 20px 16px 60px; }
+    .cmd-grid { grid-template-columns: 1fr; }
+    .part-nav a { font-size: 11px; padding: 9px 4px; }
+  }
+  @media print {
+    .sticky-bar { display: none; }
+    body { background: white; }
+    .step { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 히어로 -->
+<div class="hero">
+  <div class="hero-badge">HANDS-ON WORKBOOK</div>
+  <h1>Claude Code 핸즈온 가이드</h1>
+  <p>설치부터 배포까지 — 직접 따라 하며 완성하는 4시간 실습</p>
+</div>
+
+<!-- 스티키 바 -->
+<div class="sticky-bar">
+  <nav class="part-nav">
+    <a href="#part1" class="p1">⚙️ PART 1<br><small>설치 &amp; 첫 대화</small></a>
+    <a href="#part2" class="p2">🌿 PART 2<br><small>링크트리 만들기</small></a>
+    <a href="#part3" class="p3">🎭 PART 3<br><small>Playwright MCP</small></a>
+    <a href="#part4" class="p4">🚀 PART 4<br><small>배포하기</small></a>
+  </nav>
+  <div class="progress-bar-wrap">
+    <div class="progress-info">
+      <span>전체 진행률</span>
+      <span id="progress-text">0 / 0 완료</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ══════════════ PART 1 ══════════════ -->
+  <div class="part" id="part1">
+    <div class="part-header p1">
+      <div class="part-icon">⚙️</div>
+      <div><div class="part-title">PART 1. 설치 &amp; 첫 대화</div><div class="part-sub">50분 · VS Code + Node.js + Claude Code 설치 및 첫 실행</div></div>
+    </div>
+
+    <!-- 사전 준비 -->
+    <div class="prep-card">
+      <h2>📋 사전 준비 (강의 전에 완료)</h2>
+      <p style="font-size:13.5px;color:var(--muted);margin-bottom:14px">설치는 강의 중 함께 진행합니다. 아래 두 가지만 미리 준비해 오세요.</p>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>GitHub 계정 만들기 — <a href="https://github.com" target="_blank">github.com</a> → Sign up</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>claude.ai 계정 만들기 + <strong>Pro 또는 Max 플랜</strong> 구독 — <a href="https://claude.ai" target="_blank">claude.ai</a></label></div>
+    </div>
+
+    <!-- 1-1 VS Code -->
+    <div class="step">
+      <div class="step-head h-p1">
+        <div class="step-num n-p1">1</div>
+        <div class="step-title c-p1">1-1. VS Code 설치</div>
+      </div>
+      <div class="step-body">
+        <div class="os-tabs">
+          <div class="os-tab-btns">
+            <button class="os-btn active" onclick="switchTab(this,'win-11')">🪟 Windows</button>
+            <button class="os-btn" onclick="switchTab(this,'mac-11')">🍎 Mac</button>
+          </div>
+          <div class="os-pane active" id="win-11">
+            <ol>
+              <li><a href="https://code.visualstudio.com" target="_blank">code.visualstudio.com</a> 접속</li>
+              <li><strong>Download for Windows</strong> 버튼 클릭 → <code>.exe</code> 파일 다운로드</li>
+              <li>다운로드된 파일 실행 → 설치 옵션은 기본값 유지</li>
+              <li>설치 중 <strong>"PATH에 추가"</strong> 옵션이 있으면 반드시 체크</li>
+              <li>설치 완료 후 VS Code 실행 확인</li>
+            </ol>
+          </div>
+          <div class="os-pane" id="mac-11">
+            <ol>
+              <li><a href="https://code.visualstudio.com" target="_blank">code.visualstudio.com</a> 접속</li>
+              <li><strong>Download for Mac</strong> 버튼 클릭 → <code>.zip</code> 파일 다운로드</li>
+              <li>다운로드된 <code>.zip</code> 더블클릭 → <code>Visual Studio Code.app</code> 압축 해제</li>
+              <li><code>Visual Studio Code.app</code>을 <strong>응용 프로그램(Applications)</strong> 폴더로 드래그</li>
+              <li>VS Code 실행 후 상단 메뉴 → <strong>Shell Command: Install 'code' command in PATH</strong> 실행</li>
+            </ol>
+            <div class="tip" style="margin-top:10px">마지막 PATH 등록이 중요합니다. 나중에 터미널에서 <code>code .</code> 명령으로 폴더를 VS Code로 바로 열 수 있습니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1-2 Node.js -->
+    <div class="step">
+      <div class="step-head h-p1">
+        <div class="step-num n-p1">2</div>
+        <div class="step-title c-p1">1-2. Node.js 설치</div>
+      </div>
+      <div class="step-body">
+        <p>Claude Code는 Node.js 위에서 동작합니다. 반드시 설치가 필요합니다.</p>
+        <div class="os-tabs">
+          <div class="os-tab-btns">
+            <button class="os-btn active" onclick="switchTab(this,'win-12')">🪟 Windows</button>
+            <button class="os-btn" onclick="switchTab(this,'mac-12')">🍎 Mac</button>
+          </div>
+          <div class="os-pane active" id="win-12">
+            <ol>
+              <li><a href="https://nodejs.org" target="_blank">nodejs.org</a> 접속</li>
+              <li><strong>LTS</strong> 버전 다운로드 버튼 클릭 (예: <code>v20.x.x LTS</code>)</li>
+              <li>다운로드된 <code>.msi</code> 파일 실행</li>
+              <li>설치 옵션은 모두 기본값 → <strong>Next</strong> 계속 클릭</li>
+              <li>설치 완료 후 <strong>PowerShell</strong> 또는 <strong>명령 프롬프트 새로 열기</strong></li>
+              <li>아래 명령으로 설치 확인:</li>
+            </ol>
+            <div class="code-wrap"><div class="code-label">PowerShell <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>node --version
+npm --version</code></pre></div>
+          </div>
+          <div class="os-pane" id="mac-12">
+            <ol>
+              <li><a href="https://nodejs.org" target="_blank">nodejs.org</a> 접속</li>
+              <li><strong>LTS</strong> 버전 다운로드 버튼 클릭 (예: <code>v20.x.x LTS</code>)</li>
+              <li>다운로드된 <code>.pkg</code> 파일 실행</li>
+              <li>설치 옵션은 모두 기본값 → <strong>계속</strong> 클릭</li>
+              <li>설치 완료 후 <strong>터미널을 닫고 새로 열기</strong> (기존 터미널엔 반영 안 됨)</li>
+              <li>아래 명령으로 설치 확인:</li>
+            </ol>
+            <div class="code-wrap"><div class="code-label">Terminal <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>node --version
+npm --version</code></pre></div>
+          </div>
+        </div>
+        <p style="margin-top:12px"><strong>정상 출력 예시:</strong></p>
+        <div class="code-wrap"><div class="code-label">출력</div><pre><code>v20.11.0
+10.2.4</code></pre></div>
+        <div class="info">버전 숫자가 보이면 OK. 숫자 앞의 <code>v</code>는 version의 약자입니다.</div>
+      </div>
+    </div>
+
+    <!-- 1-3 Git 설치 -->
+    <div class="step">
+      <div class="step-head h-p1">
+        <div class="step-num n-p1">3</div>
+        <div class="step-title c-p1">1-3. Git 설치</div>
+      </div>
+      <div class="step-body">
+        <p>Part 4 배포 실습에서 <code>git commit</code>, <code>git push</code>를 사용합니다. 반드시 설치가 필요합니다.</p>
+        <div class="os-tabs">
+          <div class="os-tab-btns">
+            <button class="os-btn active" onclick="switchTab(this,'win-13')">🪟 Windows</button>
+            <button class="os-btn" onclick="switchTab(this,'mac-13')">🍎 Mac</button>
+          </div>
+          <div class="os-pane active" id="win-13">
+            <ol>
+              <li><a href="https://git-scm.com" target="_blank">git-scm.com</a> 접속 → <strong>Download for Windows</strong> 클릭</li>
+              <li>다운로드된 <code>.exe</code> 파일 실행</li>
+              <li>설치 옵션은 모두 기본값 → <strong>Next</strong> 계속 클릭</li>
+              <li><strong>"Git Credential Manager"</strong> 옵션이 나오면 체크 상태 유지</li>
+              <li>설치 완료 후 PowerShell 새로 열고 확인:</li>
+            </ol>
+            <div class="code-wrap"><div class="code-label">PowerShell <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>git --version</code></pre></div>
+          </div>
+          <div class="os-pane" id="mac-13">
+            <p style="margin-bottom:10px">터미널에서 아래 명령어를 실행하세요:</p>
+            <div class="code-wrap"><div class="code-label">Terminal <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>git --version</code></pre></div>
+            <p style="margin-top:10px">Git이 없으면 <strong>"개발자 도구를 설치하겠습니까?"</strong> 팝업이 자동으로 뜹니다.<br><strong>설치</strong> 버튼을 클릭하면 Xcode Command Line Tools와 함께 Git이 설치됩니다.</p>
+            <div class="tip" style="margin-top:10px">Mac에서 Homebrew는 필수가 아닙니다. Xcode CLI 도구만으로 Git을 사용할 수 있습니다.</div>
+          </div>
+        </div>
+        <p style="margin-top:12px"><strong>정상 출력 예시:</strong></p>
+        <div class="code-wrap"><div class="code-label">출력</div><pre><code>git version 2.x.x</code></pre></div>
+      </div>
+    </div>
+
+    <!-- 1-4 Claude Code 설치 -->
+    <div class="step">
+      <div class="step-head h-p1">
+        <div class="step-num n-p1">4</div>
+        <div class="step-title c-p1">1-4. Claude Code 설치</div>
+      </div>
+      <div class="step-body">
+        <p>VS Code 터미널을 열고 아래 명령어를 실행하세요.</p>
+        <div class="tip">터미널 여는 단축키 — Windows: <code>Ctrl + `</code> &nbsp;/&nbsp; Mac: <code>Cmd + `</code> (백틱)</div>
+        <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>npm install -g @anthropic-ai/claude-code</code></pre></div>
+        <div class="info"><code>-g</code> 옵션은 전역(global) 설치를 의미합니다. 어떤 폴더에서든 <code>claude</code> 명령을 쓸 수 있게 됩니다.</div>
+        <p style="margin-top:12px">설치 완료 후 확인:</p>
+        <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>claude --version</code></pre></div>
+        <div class="code-wrap"><div class="code-label">정상 출력 예시</div><pre><code>1.x.x</code></pre></div>
+      </div>
+    </div>
+
+    <!-- 1-5 로그인 -->
+    <div class="step">
+      <div class="step-head h-p1">
+        <div class="step-num n-p1">5</div>
+        <div class="step-title c-p1">1-5. Claude 구독 계정으로 로그인</div>
+      </div>
+      <div class="step-body">
+        <p>API 키 없이 <strong>claude.ai 구독 계정(Pro/Max 플랜)</strong>으로 바로 사용할 수 있습니다.</p>
+        <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>claude</code></pre></div>
+        <p>처음 실행하면 아래 인증 선택 화면이 나타납니다:</p>
+        <div class="code-wrap"><div class="code-label">출력</div><pre><code>How would you like to authenticate?
+❯ claude.ai account (Pro or Max plan)
+  Anthropic API key</code></pre></div>
+        <p>키보드 방향키로 <strong>첫 번째 항목(claude.ai account)</strong>을 선택하고 Enter를 누르세요.</p>
+        <br>
+        <p><strong>브라우저 인증 순서:</strong></p>
+        <ol style="margin-top:8px">
+          <li>터미널에 인증 URL이 표시됩니다</li>
+          <li>URL을 복사해 브라우저에 붙여넣거나, 자동으로 브라우저가 열립니다</li>
+          <li>claude.ai 로그인 페이지에서 <strong>본인 계정으로 로그인</strong></li>
+          <li><strong>"Authorize Claude Code"</strong> 버튼 클릭</li>
+          <li>터미널로 돌아오면 로그인 완료 메시지 확인</li>
+        </ol>
+        <div class="warn">Pro 또는 Max 플랜이어야 합니다. Free 플랜은 Claude Code를 지원하지 않습니다.<br>플랜 확인: <a href="https://claude.ai" target="_blank">claude.ai</a> → 우측 상단 프로필 → Plan</div>
+      </div>
+    </div>
+
+    <!-- 1-6 VS Code 확장 -->
+    <div class="step">
+      <div class="step-head h-p1">
+        <div class="step-num n-p1">6</div>
+        <div class="step-title c-p1">1-6. VS Code 확장 설치</div>
+      </div>
+      <div class="step-body">
+        <ol>
+          <li>VS Code 실행</li>
+          <li>좌측 Extensions 아이콘 클릭
+            <ul style="margin-top:4px">
+              <li>Windows: <code>Ctrl+Shift+X</code></li>
+              <li>Mac: <code>Cmd+Shift+X</code></li>
+            </ul>
+          </li>
+          <li>검색창에 <code>Claude Code</code> 입력</li>
+          <li><strong>Claude Code</strong> (Anthropic 제작) → <strong>Install</strong> 클릭</li>
+        </ol>
+        <div class="info">설치 후 VS Code 좌측 사이드바에 Claude Code 아이콘이 생깁니다. 아이콘을 클릭하면 터미널 없이 패널에서 바로 대화할 수 있습니다.</div>
+      </div>
+    </div>
+
+    <!-- 1-7 첫 대화 -->
+    <div class="step">
+      <div class="step-head h-p1">
+        <div class="step-num n-p1">7</div>
+        <div class="step-title c-p1">1-7. 첫 대화 실습</div>
+      </div>
+      <div class="step-body">
+        <p>VS Code 사이드패널의 Claude Code를 열거나, 터미널에서 <code>claude</code>를 실행해 대화해보세요.</p>
+        <div class="prompt-block"><div class="prompt-label">실습 1 — 자기소개 요청</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">안녕! 너는 어떤 걸 잘 할 수 있어?</div></div>
+        <div class="prompt-block"><div class="prompt-label">실습 2 — 파일 생성 요청</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">hello.txt 파일을 만들고 "안녕하세요, Claude Code입니다!"라고 적어줘</div></div>
+        <p style="font-size:13px;color:var(--muted)">→ 만들어진 파일을 VS Code 탐색기(왼쪽 파일 목록)에서 확인해보세요.</p>
+        <div class="prompt-block"><div class="prompt-label">실습 3 — 코드 생성 요청</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">Python으로 1부터 10까지 숫자를 출력하는 코드를 count.py 파일로 만들어줘</div></div>
+        <div class="prompt-block"><div class="prompt-label">실습 4 — 코드 설명 요청</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">방금 만든 count.py 코드를 초보자도 이해할 수 있게 설명해줘</div></div>
+        <div class="prompt-block"><div class="prompt-label">실습 5 — 코드 수정 요청</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">count.py에서 짝수만 출력하도록 수정해줘</div></div>
+        <div class="tip">Claude Code는 코드를 "보여주는" 게 아니라 파일을 직접 읽고, 수정하고, 생성합니다. 일반 챗GPT와 가장 큰 차이점입니다.</div>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <h4>Part 1 체크포인트</h4>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>VS Code가 정상 실행되는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label><code>node --version</code> 명령이 정상 출력되는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label><code>git --version</code> 명령이 정상 출력되는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label><code>claude --version</code> 명령이 정상 출력되는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>VS Code에서 Claude Code 확장 아이콘이 보이는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>hello.txt 파일이 실제로 생성되었는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>count.py 파일이 짝수만 출력하도록 수정되었는가</label></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ PART 2 ══════════════ -->
+  <div class="part" id="part2">
+    <div class="part-header p2">
+      <div class="part-icon">🌿</div>
+      <div><div class="part-title">PART 2. 나만의 링크트리 만들기</div><div class="part-sub">70분 · Plan 모드 이론 + 링크트리 제작 + 추가 실습</div></div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p2"><div class="step-num n-p2">1</div><div class="step-title c-p2">2-1. Plan 모드란? (이론 15분)</div></div>
+      <div class="step-body">
+        <table>
+          <tr><th>방식</th><th>특징</th><th>적합한 상황</th></tr>
+          <tr><td><strong>즉시 실행</strong></td><td>요청하면 바로 파일 수정</td><td>간단한 수정, 한 파일 작업</td></tr>
+          <tr><td><strong>Plan 모드</strong></td><td>계획 먼저 → 내가 확인 → 실행</td><td>여러 파일 생성, 구조가 있는 작업</td></tr>
+        </table>
+        <div class="flow" style="margin:16px 0">
+          <div class="flow-item">내가 요청</div><div class="flow-arrow">↓</div>
+          <div class="flow-item">Claude가 계획 제시</div><div class="flow-arrow">↓</div>
+          <div class="flow-item">내가 검토 &amp; 승인</div><div class="flow-arrow">↓</div>
+          <div class="flow-item">Claude가 실행</div>
+        </div>
+        <p><strong>Plan 모드를 써야 할 때:</strong></p>
+        <ul style="margin-top:6px">
+          <li>새 프로젝트를 처음 만들 때</li>
+          <li>여러 파일을 한번에 생성/수정할 때</li>
+          <li>잘못 실행되면 되돌리기 어려운 작업일 때</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p2"><div class="step-num n-p2">2</div><div class="step-title c-p2">2-2. 프로젝트 폴더 만들기</div></div>
+      <div class="step-body">
+        <div class="os-tabs">
+          <div class="os-tab-btns">
+            <button class="os-btn active" onclick="switchTab(this,'win-22')">🪟 Windows</button>
+            <button class="os-btn" onclick="switchTab(this,'mac-22')">🍎 Mac</button>
+          </div>
+          <div class="os-pane active" id="win-22">
+            <div class="code-wrap"><div class="code-label">PowerShell <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>cd C:\Users\사용자명\Documents
+mkdir my-linktree
+cd my-linktree</code></pre></div>
+          </div>
+          <div class="os-pane" id="mac-22">
+            <div class="code-wrap"><div class="code-label">Terminal <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>cd ~/Documents
+mkdir my-linktree
+cd my-linktree</code></pre></div>
+          </div>
+        </div>
+        <p>VS Code에서 폴더 열기 (공통):</p>
+        <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>code .</code></pre></div>
+        <div class="tip"><code>code .</code>이 안 되면 VS Code에서 <strong>파일 → 폴더 열기</strong>로 직접 선택하세요.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p2"><div class="step-num n-p2">3</div><div class="step-title c-p2">2-3. CLAUDE.md 설정</div></div>
+      <div class="step-body">
+        <p>CLAUDE.md는 Claude Code에게 이 프로젝트의 규칙과 맥락을 알려주는 파일입니다.</p>
+        <div class="prompt-block"><div class="prompt-label">실습 프롬프트 — CLAUDE.md 생성</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">이 프로젝트는 개인 링크트리 웹페이지야.
+순수 HTML, CSS, JavaScript만 사용하고 외부 라이브러리는 쓰지 않아.
+파일 구조는 index.html, style.css, script.js로 구성해줘.
+한국어로 작업해줘.
+이 내용을 CLAUDE.md 파일로 만들어줘.</div></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p2"><div class="step-num n-p2">4</div><div class="step-title c-p2">2-4. 링크트리 만들기 — Plan 모드 실습</div></div>
+      <div class="step-body">
+        <div class="prompt-block"><div class="prompt-label">실습 프롬프트 — Plan 모드로 링크트리 생성</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">Plan 모드로 진행해줘.
+
+내 링크트리 페이지를 만들어줘. 요구사항은 아래와 같아:
+
+- 상단에 프로필 사진 자리 (원형, 100x100px)
+- 내 이름과 한 줄 소개
+- 링크 버튼 5개:
+  1. GitHub - https://github.com/내아이디
+  2. 인스타그램 - https://instagram.com/내아이디
+  3. 유튜브 - https://youtube.com/@내채널
+  4. 블로그 - https://내블로그주소
+  5. 이메일 - mailto:내이메일@gmail.com
+- 배경색은 부드러운 그라디언트
+- 버튼은 hover 시 살짝 올라오는 애니메이션
+- 모바일에서도 잘 보이는 반응형 디자인</div></div>
+        <p>Claude가 계획을 보여주면 파일 구조를 확인하고, 마음에 들면 <strong>yes</strong> 입력 → 실행.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p2"><div class="step-num n-p2">5</div><div class="step-title c-p2">2-5. 결과 확인</div></div>
+      <div class="step-body">
+        <div class="os-tabs">
+          <div class="os-tab-btns">
+            <button class="os-btn active" onclick="switchTab(this,'win-25')">🪟 Windows</button>
+            <button class="os-btn" onclick="switchTab(this,'mac-25')">🍎 Mac</button>
+          </div>
+          <div class="os-pane active" id="win-25">
+            <div class="code-wrap"><div class="code-label">파일 확인 <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>dir</code></pre></div>
+            <div class="code-wrap"><div class="code-label">브라우저 열기 <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>start index.html</code></pre></div>
+          </div>
+          <div class="os-pane" id="mac-25">
+            <div class="code-wrap"><div class="code-label">파일 확인 <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>ls</code></pre></div>
+            <div class="code-wrap"><div class="code-label">브라우저 열기 <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>open index.html</code></pre></div>
+          </div>
+        </div>
+        <div class="tip">또는 VS Code에서 <code>index.html</code> 우클릭 → <strong>Open with Live Server</strong> (Windows/Mac 공통)</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p2"><div class="step-num n-p2">6</div><div class="step-title c-p2">2-6. 추가 실습 — 멀티턴 수정 경험하기</div></div>
+      <div class="step-body">
+        <div class="prompt-block"><div class="prompt-label">실습 A — 다크모드 토글 추가</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">현재 링크트리에 다크모드/라이트모드 토글 버튼을 추가해줘.
+오른쪽 상단에 🌙 / ☀️ 아이콘 버튼으로 만들고,
+선택한 모드는 localStorage에 저장해서 새로고침해도 유지되게 해줘.</div></div>
+        <div class="prompt-block"><div class="prompt-label">실습 B — 방문 카운터 추가</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">페이지 하단에 "오늘 N명이 방문했습니다" 텍스트를 추가해줘.
+localStorage를 사용해서 방문 횟수를 저장하고,
+페이지를 새로 열 때마다 카운트가 올라가게 해줘.</div></div>
+        <div class="prompt-block"><div class="prompt-label">실습 C — 내 실제 정보로 수정</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">내 실제 정보로 링크트리 내용을 수정해줘:
+- 이름: [본인 이름 입력]
+- 소개: [한 줄 소개 입력]
+- GitHub: [본인 GitHub URL]
+- 이메일: [본인 이메일]
+나머지 링크는 임시로 # 처리해줘.</div></div>
+        <div class="tip">"이거 수정해줘", "이거 추가해줘"처럼 대화하듯 이어가는 게 Claude Code의 핵심 사용법입니다.</div>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <h4>Part 2 체크포인트</h4>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>CLAUDE.md 파일이 생성되었는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>index.html, style.css, script.js 3개 파일이 만들어졌는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>브라우저에서 링크트리 페이지가 열리는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>다크모드 토글 버튼이 동작하는가</label></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ PART 3 ══════════════ -->
+  <div class="part" id="part3">
+    <div class="part-header p3">
+      <div class="part-icon">🎭</div>
+      <div><div class="part-title">PART 3. Playwright MCP 실습</div><div class="part-sub">60분 · MCP 개념 이해 + 브라우저 자동화 실습</div></div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p3"><div class="step-num n-p3">1</div><div class="step-title c-p3">3-1. MCP란? (이론 10분)</div></div>
+      <div class="step-body">
+        <p>MCP는 Claude Code에게 <strong>외부 도구를 연결하는 플러그인 시스템</strong>입니다.</p>
+        <div class="code-wrap"><div class="code-label">MCP 구조</div><pre><code>Claude Code
+  ├── 기본: 파일 읽기/쓰기, 터미널 실행
+  └── MCP 연결 시:
+        ├── Playwright  → 브라우저 자동화
+        ├── Notion      → 노션 문서 읽기/쓰기
+        ├── Google Drive → 구글 드라이브 연동
+        └── 기타 수백 가지 도구...</code></pre></div>
+        <p style="margin-top:12px">Playwright MCP를 연결하면 Claude Code가 직접 브라우저를 열고, 클릭하고, 스크린샷을 찍을 수 있습니다.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p3"><div class="step-num n-p3">2</div><div class="step-title c-p3">3-2. Playwright MCP 설치 및 설정</div></div>
+      <div class="step-body">
+        <p><strong>① 패키지 설치 (공통)</strong></p>
+        <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>npm install -g @playwright/mcp
+npx playwright install chromium</code></pre></div>
+        <p style="margin-top:16px"><strong>② settings.json 설정</strong></p>
+        <div class="os-tabs">
+          <div class="os-tab-btns">
+            <button class="os-btn active" onclick="switchTab(this,'win-32')">🪟 Windows</button>
+            <button class="os-btn" onclick="switchTab(this,'mac-32')">🍎 Mac</button>
+          </div>
+          <div class="os-pane active" id="win-32">
+            <p style="margin-bottom:8px;font-size:14px"><code>Ctrl+Shift+P</code> → <code>Open User Settings (JSON)</code></p>
+            <p style="font-size:13px;color:var(--muted)">또는 직접 경로: <code>C:\Users\사용자명\.claude\settings.json</code></p>
+          </div>
+          <div class="os-pane" id="mac-32">
+            <p style="margin-bottom:8px;font-size:14px"><code>Cmd+Shift+P</code> → <code>Open User Settings (JSON)</code></p>
+            <p style="font-size:13px;color:var(--muted)">또는 직접 경로: <code>~/.claude/settings.json</code></p>
+          </div>
+        </div>
+        <div class="code-wrap" style="margin-top:12px"><div class="code-label">settings.json <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
+}</code></pre></div>
+        <div class="tip">파일에 다른 내용이 이미 있다면 <code>mcpServers</code> 부분만 추가하세요.</div>
+        <p style="margin-top:14px"><strong>③ Claude Code 재시작</strong></p>
+        <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>claude</code></pre></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p3"><div class="step-num n-p3">3</div><div class="step-title c-p3">3-3. Playwright MCP 실습</div></div>
+      <div class="step-body">
+        <div class="prompt-block"><div class="prompt-label">실습 1 — 브라우저 열고 스크린샷</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">playwright를 사용해서 구글 홈페이지를 열고 스크린샷을 찍어줘.
+스크린샷 파일은 screenshot_google.png로 저장해줘.</div></div>
+        <div class="prompt-block"><div class="prompt-label">실습 2 — 검색 자동화</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">playwright로 네이버(naver.com)에 접속해서
+검색창에 "Claude Code 강의"를 입력하고 검색한 뒤
+결과 페이지 스크린샷을 screenshot_search.png로 저장해줘.</div></div>
+        <div class="prompt-block"><div class="prompt-label">실습 3 — 링크트리 자동 검수 (Windows)</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">playwright를 사용해서 내 링크트리 페이지를 열고 검수해줘.
+파일 경로는 C:\Users\사용자명\Documents\my-linktree\index.html 이야.
+
+확인해야 할 것들:
+1. 페이지가 정상적으로 열리는지
+2. 프로필 영역이 보이는지
+3. 링크 버튼 5개가 모두 보이는지
+4. 모바일 크기(390px)로 변경했을 때도 잘 보이는지
+
+각 단계별로 스크린샷을 찍고, 발견된 문제가 있으면 알려줘.</div></div>
+        <div class="prompt-block"><div class="prompt-label">실습 3 — 링크트리 자동 검수 (Mac)</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">playwright를 사용해서 내 링크트리 페이지를 열고 검수해줘.
+파일 경로는 /Users/사용자명/Documents/my-linktree/index.html 이야.
+
+확인해야 할 것들:
+1. 페이지가 정상적으로 열리는지
+2. 프로필 영역이 보이는지
+3. 링크 버튼 5개가 모두 보이는지
+4. 모바일 크기(390px)로 변경했을 때도 잘 보이는지
+
+각 단계별로 스크린샷을 찍고, 발견된 문제가 있으면 알려줘.</div></div>
+        <div class="info">내 정확한 경로 확인: 터미널에서 <code>my-linktree</code> 폴더 안에서 <code>pwd</code> 실행</div>
+        <div class="prompt-block"><div class="prompt-label">실습 4 — 문제 자동 수정 (도전 과제)</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">방금 검수에서 발견된 문제들을 수정해줘.
+수정 후 다시 playwright로 확인해줘.</div></div>
+        <div class="tip">MCP를 통해 Claude Code가 "눈"을 갖게 됩니다. 코드 작성 → 브라우저 확인 → 문제 발견 → 수정 사이클을 자동으로 돌릴 수 있습니다.</div>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <h4>Part 3 체크포인트</h4>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>settings.json에 MCP 설정이 추가되었는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>screenshot_google.png 파일이 생성되었는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>링크트리 페이지 검수 스크린샷이 생성되었는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>발견된 문제가 수정되었는가</label></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ PART 4 ══════════════ -->
+  <div class="part" id="part4">
+    <div class="part-header p4">
+      <div class="part-icon">🚀</div>
+      <div><div class="part-title">PART 4. GitHub Pages로 배포하기</div><div class="part-sub">60분 · Git 커밋 + GitHub 연결 + 배포 + 재배포 사이클</div></div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p4"><div class="step-num n-p4">1</div><div class="step-title c-p4">4-1. 배포란? (이론 10분)</div></div>
+      <div class="step-body">
+        <p>지금까지 만든 링크트리는 내 컴퓨터에서만 열립니다. <strong>배포(Deploy)</strong>는 인터넷 서버에 올려 누구나 접근할 수 있게 하는 과정입니다.</p>
+        <table style="margin-top:12px">
+          <tr><th>서비스</th><th>비용</th><th>난이도</th><th>특징</th></tr>
+          <tr><td><strong>GitHub Pages</strong></td><td>무료</td><td>쉬움</td><td>GitHub 연동, 정적 사이트</td></tr>
+          <tr><td>Netlify</td><td>무료(기본)</td><td>쉬움</td><td>자동 배포 편리</td></tr>
+          <tr><td>Vercel</td><td>무료(기본)</td><td>보통</td><td>Next.js 친화적</td></tr>
+        </table>
+        <div class="info">최종 URL 형태: <code>https://내아이디.github.io/my-linktree</code></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p4"><div class="step-num n-p4">2</div><div class="step-title c-p4">4-2. Git 초기화 및 첫 커밋</div></div>
+      <div class="step-body">
+        <p><strong>① Git 초기 설정</strong> (처음 사용하는 경우)</p>
+        <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>git config --global user.name "본인이름"
+git config --global user.email "본인이메일@gmail.com"</code></pre></div>
+        <p style="margin-top:14px"><strong>② Claude Code로 커밋 요청</strong></p>
+        <div class="prompt-block"><div class="prompt-label">실습 프롬프트 — Git 초기화 및 커밋</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">이 프로젝트를 Git으로 관리하려고 해.
+아래 순서로 진행해줘:
+
+1. git init으로 저장소 초기화
+2. .gitignore 파일 생성 (node_modules, .DS_Store, *.log 제외)
+3. 현재 변경사항을 보고 적절한 커밋 메시지를 작성해서 첫 커밋 만들기
+
+커밋 메시지는 한국어로 써줘.</div></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p4"><div class="step-num n-p4">3</div><div class="step-title c-p4">4-3. GitHub 원격 저장소 만들기</div></div>
+      <div class="step-body">
+        <ol>
+          <li><a href="https://github.com" target="_blank">github.com</a> 로그인</li>
+          <li>우측 상단 <strong>+</strong> → <strong>New repository</strong> 클릭</li>
+          <li>Repository name: <code>my-linktree</code></li>
+          <li><strong>Public</strong> 선택 (GitHub Pages는 Public 필요)</li>
+          <li><strong>Create repository</strong> 클릭</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p4"><div class="step-num n-p4">4</div><div class="step-title c-p4">4-4. 원격 저장소 연결 &amp; Push</div></div>
+      <div class="step-body">
+        <div class="prompt-block"><div class="prompt-label">실습 프롬프트</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">GitHub에 방금 my-linktree 저장소를 만들었어.
+내 GitHub 아이디는 [본인 아이디] 야.
+원격 저장소 연결하고 push까지 해줘.</div></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p4"><div class="step-num n-p4">5</div><div class="step-title c-p4">4-5. GitHub Pages 활성화</div></div>
+      <div class="step-body">
+        <ol>
+          <li>GitHub에서 <code>my-linktree</code> 저장소 → <strong>Settings</strong></li>
+          <li>좌측 메뉴 <strong>Pages</strong></li>
+          <li><strong>Source</strong> → <strong>Deploy from a branch</strong></li>
+          <li><strong>Branch</strong> → <code>main</code>, 폴더 <code>/ (root)</code> → <strong>Save</strong></li>
+        </ol>
+        <div class="code-wrap" style="margin-top:14px"><div class="code-label">1~2분 후 표시</div><pre><code>Your site is live at https://내아이디.github.io/my-linktree</code></pre></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-head h-p4"><div class="step-num n-p4">6</div><div class="step-title c-p4">4-6. 수정 후 재배포 실습</div></div>
+      <div class="step-body">
+        <div class="prompt-block"><div class="prompt-label">수정 요청</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">링크트리 페이지 하단에 "© 2025 내이름. Made with Claude Code" 라는
+저작권 표시를 추가해줘.</div></div>
+        <div class="prompt-block"><div class="prompt-label">커밋 &amp; 재배포</div><button class="prompt-copy" onclick="copyPrompt(this)">복사</button><div class="prompt-text">변경된 내용을 확인하고 적절한 커밋 메시지로 커밋한 뒤 push해줘.</div></div>
+        <div class="info">push 후 1~2분 기다리면 GitHub Pages가 자동으로 업데이트됩니다.</div>
+      </div>
+    </div>
+
+    <div class="checkpoint">
+      <h4>Part 4 체크포인트</h4>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>GitHub에 my-linktree 저장소가 생성되었는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>git push가 성공했는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>GitHub Pages에서 URL이 발급되었는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>브라우저에서 배포된 페이지가 열리는가</label></div>
+      <div class="check-item" onclick="toggleCheck(this)"><input type="checkbox"><label>수정 후 재배포가 자동으로 반영되었는가</label></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ 마무리 ══════════════ -->
+
+  <!-- 조작법 -->
+  <div class="wrap-section">
+    <h3>⌨️ Claude Code 자주 쓰는 조작법</h3>
+    <div class="shortcut-section">
+      <h4>중단 / 취소</h4>
+      <table><tr><th>조작</th><th>설명</th></tr>
+        <tr><td><code>Esc</code></td><td>현재 입력 취소 (타이핑 중일 때)</td></tr>
+        <tr><td><code>Ctrl + C</code></td><td>실행 중인 작업 강제 중단</td></tr>
+      </table>
+    </div>
+    <div class="shortcut-section">
+      <h4>줄바꿈</h4>
+      <table><tr><th>조작</th><th>설명</th></tr>
+        <tr><td><code>Shift + Enter</code></td><td>줄바꿈 (패널/채팅 UI 환경)</td></tr>
+        <tr><td><code>\</code> 입력 후 <code>Enter</code></td><td>줄바꿈 (터미널 환경)</td></tr>
+        <tr><td><code>Option + Enter</code> (Mac) / <code>Alt + Enter</code> (Windows)</td><td>줄바꿈 (터미널 환경)</td></tr>
+      </table>
+    </div>
+    <div class="shortcut-section">
+      <h4>이전 메시지 수정</h4>
+      <table><tr><th>조작</th><th>설명</th></tr>
+        <tr><td><code>↑</code> 방향키</td><td>이전에 입력한 메시지 불러오기</td></tr>
+        <tr><td>수정 후 <code>Enter</code></td><td>수정된 내용으로 재전송</td></tr>
+      </table>
+    </div>
+    <div class="shortcut-section">
+      <h4>대화 관리</h4>
+      <div class="cmd-grid">
+        <div class="cmd-chip">/clear <span>대화 히스토리 초기화 (새로 시작)</span></div>
+        <div class="cmd-chip">/compact <span>긴 대화를 요약해서 컨텍스트 절약</span></div>
+        <div class="cmd-chip">/undo <span>마지막 파일 변경 되돌리기</span></div>
+        <div class="cmd-chip">/status <span>현재 상태 확인</span></div>
+      </div>
+    </div>
+    <div class="shortcut-section" style="margin-bottom:0">
+      <h4>파일 참조 / 모드 지정</h4>
+      <table><tr><th>조작</th><th>설명</th></tr>
+        <tr><td><code>@파일명</code></td><td>특정 파일을 대화에 첨부</td></tr>
+        <tr><td><code>#</code></td><td>자주 쓰는 지시사항(메모리) 불러오기</td></tr>
+        <tr><td><code>/edit</code></td><td>파일 수정에만 집중</td></tr>
+        <tr><td><code>/chat</code></td><td>대화만, 파일 건드리지 않음</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- 프롬프트 패턴 -->
+  <div class="wrap-section">
+    <h3>📝 핵심 프롬프트 패턴</h3>
+    <table>
+      <tr><th>상황</th><th>프롬프트 패턴</th></tr>
+      <tr><td>새 기능 추가</td><td><code>[기능명]을 추가해줘. 조건은 [조건]이야.</code></td></tr>
+      <tr><td>버그 수정</td><td><code>[증상]이 발생해. 원인을 찾아서 수정해줘.</code></td></tr>
+      <tr><td>코드 개선</td><td><code>[파일명] 코드를 더 읽기 좋게 개선해줘.</code></td></tr>
+      <tr><td>구조 변경</td><td><code>Plan 모드로 [작업 설명] 해줘.</code></td></tr>
+      <tr><td>배포 자동화</td><td><code>변경사항 확인하고 커밋 메시지 작성해서 push해줘.</code></td></tr>
+    </table>
+  </div>
+
+  <!-- 실무 시나리오 -->
+  <div class="wrap-section">
+    <h3>🗺️ 앞으로 혼자 해볼 수 있는 실무 시나리오</h3>
+    <div class="scenario-grid">
+      <div class="scenario-card"><strong>포트폴리오 사이트</strong>링크트리를 발전시켜 전체 포트폴리오 페이지로</div>
+      <div class="scenario-card"><strong>React / Vue 앱</strong>"React로 [앱 이름] 만들어줘"로 시작</div>
+      <div class="scenario-card"><strong>업무 자동화</strong>엑셀 파일 읽어서 데이터 정리하는 Python 스크립트</div>
+      <div class="scenario-card"><strong>API 서버</strong>"Node.js로 간단한 REST API 서버 만들어줘"</div>
+      <div class="scenario-card"><strong>코드 리뷰</strong>회사 코드 붙여넣고 개선 방향 요청</div>
+    </div>
+  </div>
+
+  <!-- 트러블슈팅 -->
+  <div class="wrap-section">
+    <h3>🔧 문제 해결 (트러블슈팅)</h3>
+    <p style="font-weight:700;margin-bottom:8px;font-size:14px">Claude Code 명령을 못 찾는 경우</p>
+    <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>npm list -g @anthropic-ai/claude-code
+npm uninstall -g @anthropic-ai/claude-code
+npm install -g @anthropic-ai/claude-code</code></pre></div>
+    <div class="os-tabs" style="margin-top:8px">
+      <div class="os-tab-btns">
+        <button class="os-btn active" onclick="switchTab(this,'win-ts')">🪟 Windows</button>
+        <button class="os-btn" onclick="switchTab(this,'mac-ts')">🍎 Mac</button>
+      </div>
+      <div class="os-pane active" id="win-ts"><p style="font-size:13.5px">PowerShell을 <strong>관리자 권한</strong>으로 다시 실행한 뒤 재설치하세요.</p></div>
+      <div class="os-pane" id="mac-ts">
+        <div class="code-wrap"><div class="code-label">zsh PATH 추가 <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>echo 'export PATH="$PATH:$(npm prefix -g)/bin"' >> ~/.zshrc
+source ~/.zshrc</code></pre></div>
+      </div>
+    </div>
+
+    <p style="font-weight:700;margin:18px 0 8px;font-size:14px">로그인 오류가 나는 경우</p>
+    <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>claude logout
+claude</code></pre></div>
+    <div class="warn">Free 플랜이면 로그인 후 오류가 발생합니다. claude.ai에서 Pro/Max 플랜 여부를 확인하세요.</div>
+
+    <p style="font-weight:700;margin:18px 0 8px;font-size:14px">Playwright MCP가 연결 안 되는 경우</p>
+    <ul style="font-size:13.5px">
+      <li>settings.json 경로 확인 — Windows: <code>C:\Users\사용자명\.claude\settings.json</code> / Mac: <code>~/.claude/settings.json</code></li>
+      <li>Claude Code 완전 종료 후 재시작</li>
+      <li><code>npx playwright install chromium</code> 재실행</li>
+      <li>Mac 보안 경고 시: <strong>시스템 설정 → 개인 정보 보호 및 보안</strong> → Chromium 실행 허용</li>
+    </ul>
+
+    <p style="font-weight:700;margin:18px 0 8px;font-size:14px">GitHub push 오류가 나는 경우</p>
+    <div class="code-wrap"><div class="code-label">bash <button class="copy-btn" onclick="copyCode(this)">복사</button></div><pre><code>git remote -v
+git remote set-url origin https://github.com/내아이디/my-linktree.git</code></pre></div>
+  </div>
+
+  <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:28px">강의 관련 문의는 강사에게 직접 연락하세요.</p>
+</div>
+
+<script>
+  function toggleCheck(item) {
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (event.target === cb) return;
+    cb.checked = !cb.checked;
+    item.classList.toggle('done', cb.checked);
+    updateProgress();
+  }
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.check-item').classList.toggle('done', cb.checked);
+      updateProgress();
+    });
+  });
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.checkpoint input[type="checkbox"], .prep-card input[type="checkbox"]');
+    const done = [...all].filter(c => c.checked).length;
+    const pct = all.length ? Math.round(done / all.length * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-text').textContent = done + ' / ' + all.length + ' 완료';
+  }
+  updateProgress();
+
+  function switchTab(btn, targetId) {
+    const wrap = btn.closest('.os-tabs');
+    wrap.querySelectorAll('.os-btn').forEach(b => b.classList.remove('active'));
+    wrap.querySelectorAll('.os-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(targetId).classList.add('active');
+  }
+
+  function copyCode(btn) {
+    const code = btn.closest('.code-wrap').querySelector('pre code');
+    navigator.clipboard.writeText(code.innerText).then(() => {
+      btn.textContent = '완료!'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  function copyPrompt(btn) {
+    const text = btn.closest('.prompt-block').querySelector('.prompt-text').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = '완료!'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '복사'; btn.classList.remove('copied'); }, 1800);
+    });
+  }
+
+  // 스크롤에 따라 파트 네비 활성화
+  const parts = ['part1','part2','part3','part4'];
+  const navLinks = document.querySelectorAll('.part-nav a');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    parts.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && window.scrollY >= el.offsetTop - 120) current = id;
+    });
+    navLinks.forEach(a => {
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+</script>
+</body>
+</html>
